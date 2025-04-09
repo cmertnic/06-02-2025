@@ -1,0 +1,35 @@
+1) git clone https://github.com/cmertnic/laravel_app.git
+2)npm i
+3)composer update
+4)копиировать env
+5)php artisan key:generate
+6) в env задать имя прииложениия и название bd
+7)создаём репозиторий на гитхабе
+7)
+git init 
+git add .
+git commit -m "Скутин Леонид Андреевич init"
+git branch -M main
+git remote add origin ссылка https
+git push -u origin main
+8)в таблицах помеять данные под актуальные app->http->models
+9)в миграциях меняем данные под нужные database->migrations
+10)в seeders меняем данные под нужные database->seeders (не оставляем пустые данные может вызвать ошибку)
+11) запускаем xamp первые 2 и заходим в бд
+12) делаем php artisan migrate:reset 
+13) проводим миграцию php artisan migrate
+14) проводим seed php artisan db:seed
+15)
+git add .
+git commit -m "Скутин Леонид Андреевич databse+seed"
+git push -u origin main
+16)начинаем делать регстрацию и вход resources->views->auth 
+17) меняем регистрацю и вход под логин или почту app->http->requests->auth
+18)также не забываем про контроллер app->http->Controllers->Auth->RegisteredUserController
+19) ReportContorller
+20) проверяем работу регистрации и входа, также проверить чтобы выдавало ошибки правильно
+21)
+git add .
+git commit -m "Скутин Леонид Андреевич register+login"
+git push -u origin main
+22)  после того как админка и карточка работают  хостим
