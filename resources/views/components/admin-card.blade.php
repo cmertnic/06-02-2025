@@ -1,57 +1,28 @@
-<div class="flex justify-center items-center bg-gray-100">
-    <div class="bg-white shadow-md rounded-lg p-4 max-w-md w-full mb-2">
-        <h2 class="font-bold text-xl mb-2">Заявка от {{ $report->created_at ? $report->created_at->format('d.m.Y') : 'Неизвестное время' }}</h2>
-        <p><strong>Клиент:</strong> {{ $report->client->name ?? 'Неизвестный клиент' }}</p> 
-        <p><strong>Время:</strong> {{ $report->time }}</p>
-            <select id="statusSelect-{{ $report->id }}" name="statues_id" onchange="updateStatus(this, '{{ $report->id }}');">
-                @foreach($statues as $status)
-                    <option value="{{ $status->id }}" {{ $report->statues_id == $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
-                @endforeach
-            </select>
-        </p>
+@if ($report->acess ==0) <!-- Проверяем значение access -->
+<div class="bg-white shadow-md rounded-lg p-4 max-w-md w-full mt-6 ml-auto mr-auto" id="report-{{ $report->id }}">
+    <h2 class="font-bold text-xl mb-2">
+        Автор: {{ $report->fullname ?? 'Неизвестный автор' }}
+    </h2>
+    <p><strong>Телефон:</strong> {{ $report->user->tel ?? 'Не указан' }}</p>
+    <p><strong>Email:</strong> {{ $report->user->email ?? 'Не указан' }}</p>
+    <p><strong>Тема:</strong> {{ $report->theme }}</p>
+    <p><strong>Секция:</strong> {{ $report->section->title ?? 'Не указана' }}</p>
+    @if ($report->path_img)
+        <img src="{{ Storage::url($report->path_img) }}" class="contact-block_img" alt="Изображение">
+    @else
+        <p class="mt-4 mb-4 text-gray-500">Изображение недоступно</p>
+    @endif
+
+    <div class="mt-4">
+        <form action="{{ route('admin.approve', $report->id) }}" method="POST" style="display: inline;" onsubmit="disableButtons(this);">
+            @csrf
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Одобрить</button>
+        </form>
+
+        <form action="{{ route('admin.reject', $report->id) }}" method="POST" style="display: inline;" onsubmit="disableButtons(this);">
+            @csrf
+            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Отклонить</button>
+        </form>
     </div>
 </div>
-
-<script>
-function updateStatus(selectElement, reportId) {
-    const selectedValue = selectElement.value;
-    let textColor;
-
-    switch (selectedValue) {
-        case '1':
-            textColor = 'black'; 
-            break;
-        case '2':
-            textColor = 'blue'; 
-            break;
-        case '3':
-            textColor = 'red'; 
-            break;
-        default:
-            textColor = 'black';
-    }
-    selectElement.style.color = textColor;
-
-    const formData = new FormData();
-    formData.append('status_id', selectedValue);
-    
-    fetch(`/reports/${reportId}`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            console.log('Статус успешно обновлён');
-        } else {
-            alert('Ошибка при обновлении статуса');
-        }
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-    });
-}
-</script>
+@endif

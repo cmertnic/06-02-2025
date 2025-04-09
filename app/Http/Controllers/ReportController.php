@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+
 class ReportController extends Controller
 {
     private function isAdminByEmail($email)
@@ -23,10 +24,28 @@ class ReportController extends Controller
         }
         $reports = Report::paginate(10);
         $sections = Section::all();
+        $users = User::all();
 
-        return view('admin', compact('reports', 'sections'));
+        return view('admin', compact('reports', 'sections', 'users'));
     }
-
+    public function approve($id)
+    {
+        $report = Report::findOrFail($id);
+        $report->acess = 1; 
+        $report->save();
+    
+        return redirect()->back()->with('success', 'Заявка одобрена.');
+    }
+    
+    public function reject($id)
+    {
+        $report = Report::findOrFail($id);
+        $report->acess = 2; 
+        $report->save();
+    
+        return redirect()->back()->with('success', 'Заявка отклонена.');
+    }
+    
     public function updateStatus(Request $request, $id)
     {
         $report = Report::findOrFail($id);
@@ -67,28 +86,34 @@ class ReportController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-
             'fullname' => 'required|string|max:255',
-            'path_img' => 'image|mimes:png,jpg,jpeg,gif|max:800',
+            'path_img' => 'required|image|mimes:png,jpg,jpeg,gif|max:800',
             'theme' => 'required|string|max:255',
             'section_id' => 'required|exists:sections,id',
         ]);
-        $imageName = Storage::disk('public')->put('/requets', $request->file('path_img'));
-        $imageName = time() . '.' . $request['path_img']->extension();
-        $request['path_img']->move(public_path('storage'), $imageName);
+        if (Report::where('user_id', Auth::id())->exists()) {
+            return redirect()->back()->with('error', 'Вы уже отправили работу. Желаем удачи!');
+        }
 
+        $imageName = time() . '.' . $request->path_img->extension();
+        $request->path_img->storeAs('requests', $imageName, 'public');
+        if ($request->hasFile('path_img')) {
+            $imageName = Storage::disk('public')->put('/reports', $request->file('path_img'));
+            $imageName = time() . '.' . $request['path_img']->extension();
+            $request['path_img']->move(public_path('storage'), $imageName);
 
+            Report::create([
+                'fullname' => $data['fullname'],
+                'path_img' => $imageName,
+                'theme' => $data['theme'],
+                'acess' => "0",
+                'section_id' => $data['section_id'],
+                'user_id' => Auth::id(),
+            ]);
 
-        Report::create([
-            'fullname' => $data['fullname'],
-            'path_img' => $imageName,
-            'theme' => $data['theme'],
-            'section_id' => $data['section_id'],
-            'user_id' => Auth::id(),
-        ]);
-
-        Log::info('Report created successfully.');
-
-        return redirect('/')->with('message', 'Создание заявки успешно!');
+            return redirect('/')->with('message', 'Создание заявки успешно!');
+        } else {
+            return redirect()->back()->with('error', 'Файл не загружен. Пожалуйста, попробуйте еще раз.');
+        }
     }
 }

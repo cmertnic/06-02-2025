@@ -13,6 +13,7 @@ class Report extends Model
         'fullname',
         'path_img',
         'theme',
+        'acess',
         'section_id', 
         'user_id',
     ];
