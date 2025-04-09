@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Statue extends Model
+class Section extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'title',
     ];
 
     public function reports()
     {
-        return $this->hasMany(Report::class, 'statues_id'); 
+        return $this->hasMany(Report::class, 'section_id'); 
     }
 }

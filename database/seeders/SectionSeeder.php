@@ -2,24 +2,27 @@
 
 namespace Database\Seeders;
 
-use App\Models\Statue;
+use App\Models\Section;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class StatuesSeeder extends Seeder
+class SectionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Statue::insert(
+        Section::insert(
             [
                 [
-                    'name'=> '',
+                    'title'=> 'Программирование',
                 ],
                 [
-                    'name'=> '',
+                    'title'=> 'Тестирование',
+                ],
+                [
+                    'title'=> 'Информационная безопасность',
                 ],
             ]
         );
